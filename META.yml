@@ -1,12 +1,12 @@
 --- #YAML:1.0
 name:                Data-GUID
-version:             0.042
+version:             0.043
 abstract:            globally unique identifiers
 license:             perl
 generated_by:        ExtUtils::MakeMaker version 6.31
 distribution_type:   module
 requires:     
-    Data::UUID:                    0.13
+    Data::UUID:                    1.148
     Sub::Exporter:                 0.9
     Sub::Install:                  0.03
     Test::More:                    0
