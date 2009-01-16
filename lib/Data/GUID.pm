@@ -13,13 +13,11 @@ Data::GUID - globally unique identifiers
 
 =head1 VERSION
 
-version 0.043
-
- $Id: /my/cs/projects/Data-GUID/trunk/lib/Data/GUID.pm 30917 2007-03-08T16:05:53.476357Z rjbs  $
+version 0.045
 
 =cut
 
-our $VERSION = '0.043';
+our $VERSION = '0.045';
 
 =head1 SYNOPSIS
 
