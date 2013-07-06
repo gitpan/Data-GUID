@@ -1,14 +1,17 @@
 Changes
+LICENSE
 MANIFEST
+META.json
+META.yml
 Makefile.PL
 README
+dist.ini
 lib/Data/GUID.pm
+t/00-compile.t
 t/00-load.t
+t/000-report-versions-tiny.t
 t/basic.t
 t/import.t
 t/multipass_from.t
-t/pod-coverage.t
-t/pod.t
-t/perl-critic.t
-LICENSE
-META.yml                                 Module meta-data (added by MakeMaker)
+xt/release/changes_has_content.t
+xt/release/pod-syntax.t

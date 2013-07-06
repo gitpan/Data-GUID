@@ -1,52 +1,15 @@
-package Data::GUID;
-
-use warnings;
 use strict;
+use warnings;
+package Data::GUID;
+{
+  $Data::GUID::VERSION = '0.047';
+}
+# ABSTRACT: globally unique identifiers
 
 use Carp ();
-use Data::UUID;
-use Sub::Install;
+use Data::UUID 1.148;
+use Sub::Install 0.03;
 
-=head1 NAME
-
-Data::GUID - globally unique identifiers
-
-=head1 VERSION
-
-version 0.046
-
-=cut
-
-our $VERSION = '0.046';
-
-=head1 SYNOPSIS
-
-  use Data::GUID;
-
-  my $guid = Data::GUID->new;
-
-  my $string = $guid->as_string; # or "$guid"
-
-  my $other_guid = Data::GUID->from_string($string);
-
-  if (($guid <=> $other_guid) == 0) {
-    print "They're the same!\n";
-  }
-
-=head1 DESCRIPTION
-
-Data::GUID provides a simple interface for generating and using globally unique
-identifiers.
-
-=head1 GETTING A NEW GUID
-
-=head2 new
-
-  my $guid = Data::GUID->new;
-
-This method returns a new globally unique identifier.
-
-=cut
 
 my $_uuid_gen = Data::UUID->new;
 sub new {
@@ -55,32 +18,6 @@ sub new {
   return $class->from_data_uuid($_uuid_gen->create);
 }
 
-=head1 GUIDS FROM EXISTING VALUES
-
-These method returns a new Data::GUID object for the given GUID value.  In all
-cases, these methods throw an exception if given invalid input.
-
-=head2 from_string
-
-  my $guid = Data::GUID->from_string("B0470602-A64B-11DA-8632-93EBF1C0E05A");
-
-=head2 from_hex
-
-  # note that a hex guid is a guid string without hyphens and with a leading 0x
-  my $guid = Data::GUID->from_hex("0xB0470602A64B11DA863293EBF1C0E05A");
-
-=head2 from_base64
-
-  my $guid = Data::GUID->from_base64("sEcGAqZLEdqGMpPr8cDgWg==");
-
-=head2 from_data_uuid
-
-This method returns a new Data::GUID object if given a Data::UUID value.
-Because Data::UUID values are not blessed and because Data::UUID provides no
-validation method, this method will only throw an exception if the given data
-is of the wrong size.
-
-=cut
 
 sub from_data_uuid {
   my ($class, $value) = @_;
@@ -90,18 +27,6 @@ sub from_data_uuid {
   bless \$value => $class;
 }
 
-=head1 IDENTIFYING GUIDS
-
-=head2 string_guid_regex
-
-=head2 hex_guid_regex
-
-=head2 base64_guid_regex
-
-These methods return regex objects that match regex strings of the appropriate
-type.
-
-=cut
 
 my ($hex, $base64, %type);
 
@@ -184,17 +109,6 @@ sub _from_multitype {
   }
 }
 
-=head2 from_any_string
-
-  my $string = get_string_from_ether;
-
-  my $guid = Data::GUID->from_any_string($string);
-
-This method returns a Data::GUID object for the given string, trying all known
-string interpretations.  An exception is thrown if the value is not a valid
-GUID string.
-
-=cut
 
 BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
   Sub::Install::install_sub({
@@ -203,17 +117,6 @@ BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
   });
 }
 
-=head2 best_guess
-
-  my $value = get_value_from_ether;
-
-  my $guid = Data::GUID->best_guess($value);
-
-This method returns a Data::GUID object for the given value, trying everything
-it can.  It works like C<L</from_any_string>>, but will also accept Data::UUID
-values.  (In effect, this means that any sixteen byte value is acceptable.)
-
-=cut
 
 BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
   Sub::Install::install_sub({
@@ -222,42 +125,7 @@ BEGIN { # possibly unnecessary -- rjbs, 2006-03-11
   });
 }
 
-=head1 GUIDS INTO STRINGS
 
-These methods return various string representations of a GUID.
-
-=head2 as_string
-
-This method returns a "traditional" GUID/UUID string representation.  This is
-five hexadecimal strings, delimited by hyphens.  For example:
-
-  B0470602-A64B-11DA-8632-93EBF1C0E05A
-
-This method is also used to stringify Data::GUID objects.
-
-=head2 as_hex
-
-This method returns a plain hexadecimal representation of the GUID, with a
-leading C<0x>.  For example:
-
-  0xB0470602A64B11DA863293EBF1C0E05A
-
-=head2 as_base64
-
-This method returns a base-64 string representation of the GUID.  For example:
-
-  sEcGAqZLEdqGMpPr8cDgWg==
-
-=cut
-
-=head1 OTHER METHODS
-
-=head2 compare_to_guid
-
-This method compares a GUID to another GUID and returns -1, 0, or 1, as do
-other comparison routines.
-
-=cut
 
 sub compare_to_guid {
   my ($self, $other) = @_;
@@ -268,13 +136,6 @@ sub compare_to_guid {
   $_uuid_gen->compare($self->as_binary, $other_binary);
 }
 
-=head2 as_binary
-
-This method returns the packed binary representation of the GUID.  At present
-this method relies on Data::GUID's underlying use of Data::UUID.  It is not
-guaranteed to continue to work the same way, or at all.  I<Caveat invocator>.
-
-=cut
 
 sub as_binary {
   my ($self) = @_;
@@ -286,42 +147,7 @@ use overload
   '<=>' => sub { ($_[2] ? -1 : 1) * $_[0]->compare_to_guid($_[1]) },
   fallback => 1;
 
-=head1 IMPORTING
 
-Data::GUID does not export any subroutines by default, but it provides a few
-routines which will be imported on request.  These routines may be called as
-class methods, or may be imported to be called as subroutines.  Calling them by
-fully qualified name is incorrect.
-
-  use Data::GUID qw(guid);
-
-  my $guid = guid;             # OK
-  my $guid = Data::GUID->guid; # OK
-  my $guid = Data::GUID::guid; # NOT OK
-
-=cut
-
-=head2 guid
-
-This routine returns a new Data::GUID object.
-
-=head2 guid_string
-
-This returns the string representation of a new GUID.
-
-=head2 guid_hex
-
-This returns the hex representation of a new GUID.
-
-=head2 guid_base64
-
-This returns the base64 representation of a new GUID.
-
-=head2 guid_from_anything
-
-This returns the result of calling the C<L</from_any_string>> method.
-
-=cut
 
 BEGIN {
   Sub::Install::install_sub({ code => 'new', as => 'guid' });
@@ -353,43 +179,210 @@ BEGIN {
     ((map { "guid_$_" } keys %type), 'guid');
 }
 
-use Sub::Exporter -setup => {
+use Sub::Exporter 0.90 -setup => {
   exports => {
     %exports, # defined just above
     guid_from_anything => sub { _curry_class($_[0], 'from_any_string', 1) },
   }
 };
 
+
+1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Data::GUID - globally unique identifiers
+
+=head1 VERSION
+
+version 0.047
+
+=head1 SYNOPSIS
+
+  use Data::GUID;
+
+  my $guid = Data::GUID->new;
+
+  my $string = $guid->as_string; # or "$guid"
+
+  my $other_guid = Data::GUID->from_string($string);
+
+  if (($guid <=> $other_guid) == 0) {
+    print "They're the same!\n";
+  }
+
+=head1 DESCRIPTION
+
+Data::GUID provides a simple interface for generating and using globally unique
+identifiers.
+
+=head1 GETTING A NEW GUID
+
+=head2 new
+
+  my $guid = Data::GUID->new;
+
+This method returns a new globally unique identifier.
+
+=head1 GUIDS FROM EXISTING VALUES
+
+These method returns a new Data::GUID object for the given GUID value.  In all
+cases, these methods throw an exception if given invalid input.
+
+=head2 from_string
+
+  my $guid = Data::GUID->from_string("B0470602-A64B-11DA-8632-93EBF1C0E05A");
+
+=head2 from_hex
+
+  # note that a hex guid is a guid string without hyphens and with a leading 0x
+  my $guid = Data::GUID->from_hex("0xB0470602A64B11DA863293EBF1C0E05A");
+
+=head2 from_base64
+
+  my $guid = Data::GUID->from_base64("sEcGAqZLEdqGMpPr8cDgWg==");
+
+=head2 from_data_uuid
+
+This method returns a new Data::GUID object if given a Data::UUID value.
+Because Data::UUID values are not blessed and because Data::UUID provides no
+validation method, this method will only throw an exception if the given data
+is of the wrong size.
+
+=head1 IDENTIFYING GUIDS
+
+=head2 string_guid_regex
+
+=head2 hex_guid_regex
+
+=head2 base64_guid_regex
+
+These methods return regex objects that match regex strings of the appropriate
+type.
+
+=head2 from_any_string
+
+  my $string = get_string_from_ether;
+
+  my $guid = Data::GUID->from_any_string($string);
+
+This method returns a Data::GUID object for the given string, trying all known
+string interpretations.  An exception is thrown if the value is not a valid
+GUID string.
+
+=head2 best_guess
+
+  my $value = get_value_from_ether;
+
+  my $guid = Data::GUID->best_guess($value);
+
+This method returns a Data::GUID object for the given value, trying everything
+it can.  It works like C<L</from_any_string>>, but will also accept Data::UUID
+values.  (In effect, this means that any sixteen byte value is acceptable.)
+
+=head1 GUIDS INTO STRINGS
+
+These methods return various string representations of a GUID.
+
+=head2 as_string
+
+This method returns a "traditional" GUID/UUID string representation.  This is
+five hexadecimal strings, delimited by hyphens.  For example:
+
+  B0470602-A64B-11DA-8632-93EBF1C0E05A
+
+This method is also used to stringify Data::GUID objects.
+
+=head2 as_hex
+
+This method returns a plain hexadecimal representation of the GUID, with a
+leading C<0x>.  For example:
+
+  0xB0470602A64B11DA863293EBF1C0E05A
+
+=head2 as_base64
+
+This method returns a base-64 string representation of the GUID.  For example:
+
+  sEcGAqZLEdqGMpPr8cDgWg==
+
+=head1 OTHER METHODS
+
+=head2 compare_to_guid
+
+This method compares a GUID to another GUID and returns -1, 0, or 1, as do
+other comparison routines.
+
+=head2 as_binary
+
+This method returns the packed binary representation of the GUID.  At present
+this method relies on Data::GUID's underlying use of Data::UUID.  It is not
+guaranteed to continue to work the same way, or at all.  I<Caveat invocator>.
+
+=head1 IMPORTING
+
+Data::GUID does not export any subroutines by default, but it provides a few
+routines which will be imported on request.  These routines may be called as
+class methods, or may be imported to be called as subroutines.  Calling them by
+fully qualified name is incorrect.
+
+  use Data::GUID qw(guid);
+
+  my $guid = guid;             # OK
+  my $guid = Data::GUID->guid; # OK
+  my $guid = Data::GUID::guid; # NOT OK
+
+=head2 guid
+
+This routine returns a new Data::GUID object.
+
+=head2 guid_string
+
+This returns the string representation of a new GUID.
+
+=head2 guid_hex
+
+This returns the hex representation of a new GUID.
+
+=head2 guid_base64
+
+This returns the base64 representation of a new GUID.
+
+=head2 guid_from_anything
+
+This returns the result of calling the C<L</from_any_string>> method.
+
 =head1 TODO
 
-=over
+=over 4
 
-=item * add namespace support
+=item *
 
-=item * remove dependency on wretched Data::UUID
+add namespace support
 
-=item * make it work on 5.005
+=item *
+
+remove dependency on wretched Data::UUID
+
+=item *
+
+make it work on 5.005
 
 =back
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to
-C<bug-data-guid@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org>.  I will be notified, and then you'll automatically be
-notified of progress on your bug as I make changes.
+This software is copyright (c) 2006 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2006 Ricardo Signes, All Rights Reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-1;
