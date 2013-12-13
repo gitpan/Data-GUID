@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Data::GUID;
 {
-  $Data::GUID::VERSION = '0.047';
+  $Data::GUID::VERSION = '0.048';
 }
 # ABSTRACT: globally unique identifiers
 
@@ -193,13 +193,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Data::GUID - globally unique identifiers
 
 =head1 VERSION
 
-version 0.047
+version 0.048
 
 =head1 SYNOPSIS
 
